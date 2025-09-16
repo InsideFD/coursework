@@ -1,0 +1,44 @@
+[project]
+name = "bankingtransactions"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "егор",email = "lomalo565@gmail.com"}
+]
+readme = "README.md"
+dependencies = [
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+datetime = "^5.5"
+pandas = "^2.3.2"
+requests = "^2.32.5"
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-env = "^1.1.5"
+flake8 = "^7.3.0"
+black = "^25.1.0"
+isort = "^6.0.1"
+mypy = "^1.18.1"
+
+[tool.black]
+line-length = 119
+exclude = '''\.git'''
+
+[tool.isort]
+line_length = 119
+
+[tool.mypy]
+disallow_untyped_defs = true
+warn_return_any = true
+exclude = "venv"

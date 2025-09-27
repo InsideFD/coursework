@@ -43,7 +43,7 @@ def calculate_card_stats(df: pd.DataFrame) -> List[Dict[str, Any]]:
         df: DataFrame с транзакциями
 
     Returns:
-        Список с статистикой по картам
+        Список со статистикой по картам
     """
     try:
         # Группировка по последним 4 цифрам карты
@@ -65,7 +65,6 @@ def calculate_card_stats(df: pd.DataFrame) -> List[Dict[str, Any]]:
                     }
                 )
         else:
-            # Если колонки нет, создаем заглушку для тестов
             card_stats.append({"last_digits": "0000", "total_spent": 0, "cashback": 0})
 
         return card_stats

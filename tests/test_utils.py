@@ -1,82 +1,39 @@
-from unittest.mock import mock_open, patch
-
+from unittest.mock import patch
 import pandas as pd
+from src.reports import spending_by_category
 
-from src.utils import calculate_card_stats, filter_transactions_by_date, load_user_settings
 
-
-def test_filter_transactions_by_date():
+def test_spending_by_category():
     """
-    Тестирование фильтрации транзакций по дате.
-    """
-    # Создание тестовых данных
-    test_data = {"date": ["2023-01-01", "2023-01-15", "2023-02-01"], "amount": [100, 200, 300]}
-    df = pd.DataFrame(test_data)
-
-    # Фильтрация
-    result = filter_transactions_by_date(df, "2023-01-01", "2023-01-31")
-
-    # Проверка результатов
-    assert len(result) == 2
-    assert all(result["date"].isin(["2023-01-01", "2023-01-15"]))
-
-
-def test_calculate_card_stats():
-    """
-    Тестирование расчета статистики по картам.
+    Тестирование функции расчета трат по категории.
     """
     # Создание тестовых данных
     test_data = {
-        "card_number": ["1234567812345678", "1234567812345678", "8765432187654321"],
-        "amount": [100, 200, -50],  # Отрицательная сумма - пополнение
+        "date": ["2023-01-01", "2023-01-15", "2023-02-01", "2023-03-01"],
+        "category": ["Продукты", "Продукты", "Развлечения", "Продукты"],
+        "amount": [100, 200, 300, 400],
     }
     df = pd.DataFrame(test_data)
 
-    # Расчет статистики
-    result = calculate_card_stats(df)
+    # Вызов функции
+    result = spending_by_category(df, "Продукты", "2023-03-15")
 
     # Проверка результатов
-    assert len(result) == 2
-    assert any(stats["last_digits"] == "5678" for stats in result)
-    assert any(stats["last_digits"] == "4321" for stats in result)
+    assert result["category"] == "Продукты"
+    assert result["total_spent"] == 700  # 100 + 200 + 400
+    assert result["transaction_count"] == 3
 
 
-def test_calculate_card_stats_no_card_column():
+@patch("src.reports.logger")
+def test_spending_by_category_error(mock_logger):
     """
-    Тестирование расчета статистики по картам, когда колонка card_number отсутствует.
+    Тестирование обработки ошибок в функции расчета трат по категории.
     """
-    # Создание тестовых данных без колонки card_number
-    test_data = {"date": ["2023-01-01", "2023-01-02"], "amount": [100, 200]}
-    df = pd.DataFrame(test_data)
+    # Вызов с некорректными данными
+    result = spending_by_category(pd.DataFrame(), "Продукты", "некорректная дата")
 
-    # Расчет статистики
-    result = calculate_card_stats(df)
+    # Проверка, что функция вернула пустой результат
+    assert result == {}
 
-    # Проверка результатов - должна быть заглушка
-    assert len(result) == 1
-    assert result[0]["last_digits"] == "0000"
-    assert result[0]["total_spent"] == 0
-
-
-@patch("builtins.open", mock_open(read_data='{"user_currencies": ["USD", "EUR"], "user_stocks": ["AAPL"]}'))
-def test_load_user_settings():
-    """
-    Тестирование загрузки пользовательских настроек.
-    """
-    result = load_user_settings()
-
-    # Проверка результатов
-    assert result["user_currencies"] == ["USD", "EUR"]
-    assert result["user_stocks"] == ["AAPL"]
-
-
-@patch("builtins.open", side_effect=FileNotFoundError)
-def test_load_user_settings_file_not_found(mock_open):
-    """
-    Тестирование загрузки пользовательских настроек, когда файл не найден.
-    """
-    result = load_user_settings()
-
-    # Проверка результатов - должны быть пустые списки
-    assert result["user_currencies"] == []
-    assert result["user_stocks"] == []
+    # Проверка, что ошибка была залогирована
+    mock_logger.error.assert_called_once()

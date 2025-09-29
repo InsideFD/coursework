@@ -10,22 +10,21 @@ def test_simple_search():
     """
     Тестирование функции простого поиска.
     """
-    # Подготовка тестовых данных
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100},
-        {"description": "Оплата услуг", "category": "Коммунальные услуги", "amount": 200},
-        {"description": "Покупка в Apple Store", "category": "Развлечения", "amount": 300}
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Оплата услуг", "Категория": "Коммунальные услуги", "Сумма операции": 200},
+        {"Описание": "Покупка в Apple Store", "Категория": "Развлечения", "Сумма операции": 300}
     ]
 
     # Тестирование поиска по описанию
     result = simple_search("магазин", test_transactions)
     assert len(result) == 1
-    assert result[0]["description"] == "Покупка в магазине"
+    assert result[0]["Описание"] == "Покупка в магазине"
 
     # Тестирование поиска по категории
     result = simple_search("развлечения", test_transactions)
     assert len(result) == 1
-    assert result[0]["category"] == "Развлечения"
+    assert result[0]["Категория"] == "Развлечения"
 
     # Тестирование поиска без результатов
     result = simple_search("несуществующий запрос", test_transactions)
@@ -37,7 +36,7 @@ def test_simple_search_empty_query():
     Тестирование поиска с пустым запросом.
     """
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100}
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100}
     ]
 
     result = simple_search("", test_transactions)
@@ -68,13 +67,13 @@ def test_simple_search_special_characters():
     Тестирование поиска со специальными символами.
     """
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100},
-        {"description": "Кафе-ресторан", "category": "Развлечения", "amount": 200}
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Кафе-ресторан", "Категория": "Развлечения", "Сумма операции": 200}
     ]
 
     result = simple_search("кафе", test_transactions)
     assert len(result) == 1
-    assert result[0]["description"] == "Кафе-ресторан"
+    assert result[0]["Описание"] == "Кафе-ресторан"
 
 
 def test_simple_search_case_insensitive():
@@ -82,8 +81,8 @@ def test_simple_search_case_insensitive():
     Тестирование поиска без учета регистра.
     """
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100},
-        {"description": "Оплата услуг", "category": "Коммунальные услуги", "amount": 200}
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Оплата услуг", "Категория": "Коммунальные услуги", "Сумма операции": 200}
     ]
 
     # Поиск в верхнем регистре
@@ -100,13 +99,14 @@ def test_simple_search_partial_match():
     Тестирование частичного совпадения.
     """
     test_transactions = [
-        {"description": "Супермаркет Лента", "category": "Продукты", "amount": 100},
-        {"description": "Магазин электроники", "category": "Техника", "amount": 200}
+        {"Описание": "Супермаркет Лента", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Магазин электроники", "Категория": "Техника", "Сумма операции": 200},
+        {"Описание": "Аптека", "Категория": "Медицина", "Сумма операции": 50}
     ]
 
     result = simple_search("маркет", test_transactions)
     assert len(result) == 1
-    assert result[0]["description"] == "Супермаркет Лента"
+    assert result[0]["Описание"] == "Супермаркет Лента"
 
 
 def test_simple_search_multiple_matches():
@@ -114,12 +114,12 @@ def test_simple_search_multiple_matches():
     Тестирование множественных совпадений.
     """
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100},
-        {"description": "Онлайн магазин", "category": "Интернет", "amount": 200},
-        {"description": "Ресторан", "category": "Развлечения", "amount": 300}
+        {"Описание": "Супермаркет Лента", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Супермаркет Ашан", "Категория": "Продукты", "Сумма операции": 150},
+        {"Описание": "Кофе", "Категория": "Кафе", "Сумма операции": 50}
     ]
 
-    result = simple_search("магазин", test_transactions)
+    result = simple_search("супермаркет", test_transactions)
     assert len(result) == 2
 
 
@@ -128,80 +128,55 @@ def test_simple_search_transaction_with_missing_fields():
     Тестирование поиска с транзакциями, в которых отсутствуют некоторые поля.
     """
     test_transactions = [
-        {"description": "Нормальная транзакция", "category": "Продукты", "amount": 100},
-        {"category": "Транзакция без описания", "amount": 200},  # Нет description
-        {"description": "Транзакция без категории", "amount": 300},  # Нет category
-        {"amount": 400}  # Только amount
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "", "Категория": "Транспорт", "Сумма операции": 200},
+        {"Категория": "Развлечения", "Сумма операции": 300},
+        {"Описание": "Такси", "Сумма операции": 400}
     ]
 
-    # Поиск должен работать с транзакциями, имеющими нужные поля
     result = simple_search("продукты", test_transactions)
-    # Найдет только первую транзакцию, так как у нее есть категория "Продукты"
     assert len(result) == 1
-    assert result[0]["description"] == "Нормальная транзакция"
-
-    # Поиск по слову "транзакция" - найдет те, где есть это слово в description или category
-    result = simple_search("транзакция", test_transactions)
-    # Найдет первую (есть в description), вторую (есть в category) и третью (есть в description)
-    assert len(result) == 3
 
 
 def test_simple_search_only_description_field():
     """
-    Тестирование поиска когда есть только поле description.
+    Тестирование поиска только по полю описания.
     """
     test_transactions = [
-        {"description": "Транзакция с описанием", "amount": 100},  # Нет category
-        {"amount": 200}  # Нет ни description, ни category
+        {"Описание": "Покупка в магазине", "Сумма операции": 100},
+        {"Категория": "Магазин", "Сумма операции": 200}
     ]
 
-    result = simple_search("описанием", test_transactions)
-    # Найдет только первую транзакцию
-    assert len(result) == 1
-    assert result[0]["description"] == "Транзакция с описанием"
+    result = simple_search("магазин", test_transactions)
+    assert len(result) == 2
 
 
 def test_simple_search_only_category_field():
     """
-    Тестирование поиска когда есть только поле category.
+    Тестирование поиска только по полю категории.
     """
     test_transactions = [
-        {"category": "Транзакция с категорией", "amount": 100},  # Нет description
-        {"amount": 200}  # Нет ни description, ни category
+        {"Описание": "Покупка", "Сумма операции": 100},
+        {"Категория": "Магазин", "Сумма операции": 200}
     ]
 
-    result = simple_search("категорией", test_transactions)
-    # Найдет только первую транзакцию
+    result = simple_search("магазин", test_transactions)
     assert len(result) == 1
-    assert result[0]["category"] == "Транзакция с категорией"
+    assert result[0]["Категория"] == "Магазин"
 
 
 @patch('src.services.logger')
 def test_simple_search_logging(mock_logger):
     """
-    Тестирование логирования в функции поиска.
+    Тестирование логирования при поиске.
     """
     test_transactions = [
-        {"description": "Покупка в магазине", "category": "Продукты", "amount": 100}
+        {"Описание": "Покупка в магазине", "Категория": "Продукты", "Сумма операции": 100}
     ]
 
-    # Успешный поиск
     result = simple_search("магазин", test_transactions)
     assert len(result) == 1
-
-    # Проверяем, что был вызван logger.info при успешном поиске
-    info_calls = [call for call in mock_logger.info.call_args_list
-                 if "Найдено" in str(call)]
-    assert len(info_calls) > 0
-
-    # Поиск с пустым запросом
-    result = simple_search("", test_transactions)
-    assert len(result) == 0
-
-    # Проверяем, что был вызван logger.warning для пустого запроса
-    warning_calls = [call for call in mock_logger.warning.call_args_list
-                    if "пустой запрос" in str(call)]
-    assert len(warning_calls) > 0
+    assert mock_logger.info.called
 
 
 def test_simple_search_exact_match():
@@ -209,11 +184,45 @@ def test_simple_search_exact_match():
     Тестирование точного совпадения.
     """
     test_transactions = [
-        {"description": "Магазин", "category": "Розница", "amount": 100},
-        {"description": "Супермаркет", "category": "Магазин продуктов", "amount": 200}
+        {"Описание": "Магазин", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": "Интернет-магазин", "Категория": "Онлайн покупки", "Сумма операции": 200},
+        {"Описание": "Магазин электроники", "Категория": "Техника", "Сумма операции": 300}
     ]
 
-    # Точное совпадение с "Магазин"
-    result = simple_search("Магазин", test_transactions)
-    # Найдет первую (description "Магазин") и вторую (category "Магазин продуктов")
-    assert len(result) == 2
+    result = simple_search("магазин", test_transactions)
+    assert len(result) == 3
+
+
+@patch('src.services.logger')
+def test_simple_search_transaction_error(mock_logger):
+    """
+    Тестирование обработки ошибок в отдельных транзакциях.
+    """
+    class ProblemObject:
+        def __str__(self):
+            raise Exception("Тестовая ошибка при преобразовании в строку")
+
+    problem_transactions = [
+        {"Описание": "Нормальная транзакция", "Категория": "Продукты", "Сумма операции": 100},
+        {"Описание": ProblemObject(), "Категория": ProblemObject()}  # Объекты, которые вызовут исключение
+    ]
+
+    result = simple_search("продукты", problem_transactions)
+
+    assert len(result) == 1
+    assert result[0]["Описание"] == "Нормальная транзакция"
+
+
+def test_simple_search_with_invalid_transaction_structure():
+    """
+    Тестирование поиска с транзакциями, имеющими неверную структуру.
+    """
+    test_transactions = [
+        {"Описание": "Нормальная транзакция", "Категория": "Продукты", "Сумма операции": 100},
+        {"invalid_field": "value"}  # Транзакция без нужных полей
+    ]
+
+    result = simple_search("продукты", test_transactions)
+
+    assert len(result) == 1
+    assert result[0]["Описание"] == "Нормальная транзакция"

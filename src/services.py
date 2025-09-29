@@ -26,31 +26,21 @@ def simple_search(query: str, transactions: List[Dict[str, Any]]) -> List[Dict[s
 
         results = []
         query_lower = query.lower().strip()
-        processed_count = 0
-        error_count = 0
 
         for transaction in transactions:
             try:
-                # Безопасное получение полей
-                description = str(transaction.get("description", "")).lower()
-                category = str(transaction.get("category", "")).lower()
+                description = str(transaction.get("Описание", "")).lower()
+                category = str(transaction.get("Категория", "")).lower()
 
                 # Поиск в описании и категории
                 if query_lower in description or query_lower in category:
                     results.append(transaction)
 
-                processed_count += 1
-
             except Exception as e:
-                # Логируем ошибку для отдельной транзакции
                 logger.warning(f"Ошибка при обработке транзакции: {e}")
-                error_count += 1
                 continue
 
-        logger.info(
-            f"Найдено {len(results)} транзакций по запросу '{query}'. "
-            f"Обработано: {processed_count}, ошибок: {error_count}"
-        )
+        logger.info(f"Найдено {len(results)} транзакций по запросу '{query}'")
         return results
 
     except Exception as e:

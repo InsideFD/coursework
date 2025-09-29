@@ -170,10 +170,9 @@ def calculate_card_stats(df: pd.DataFrame) -> List[Dict[str, Any]]:
     try:
         card_stats = []
 
-        # Проверяем наличие необходимых колонок
-        if 'card_number' not in df.columns:
-            logger.warning("Колонка 'card_number' не найдена в данных")
-            total_spent = df[df['amount'] > 0]['amount'].sum()
+        if 'Номер карты' not in df.columns:
+            logger.warning("Колонка 'Номер карты' не найдена в данных")
+            total_spent = df[df['Сумма операции'] > 0]['Сумма операции'].sum()
             if total_spent > 0:
                 card_stats.append({
                     "last_digits": "0000",
@@ -182,17 +181,15 @@ def calculate_card_stats(df: pd.DataFrame) -> List[Dict[str, Any]]:
                 })
             return card_stats
 
-        valid_cards = [card for card in df['card_number'].unique() if not pd.isna(card)]
+        valid_cards = [card for card in df['Номер карты'].unique() if not pd.isna(card)]
 
         for card in valid_cards:
-            card_df = df[df['card_number'] == card]
-            # Суммируем только положительные amounts (траты)
-            total_spent = card_df[card_df['amount'] > 0]['amount'].sum()
+            card_df = df[df['Номер карты'] == card]
+            total_spent = card_df[card_df['Сумма операции'] > 0]['Сумма операции'].sum()
 
             if total_spent > 0:
                 cashback = total_spent * 0.01
 
-                # Форматируем номер карты
                 card_str = str(card).strip()
                 last_digits = (card_str[-4:] if len(card_str) >= 4
                                else card_str.zfill(4)[-4:])
@@ -219,8 +216,7 @@ def get_top_transactions(df: pd.DataFrame, limit: int = 5) -> List[Dict[str, Any
     Возвращает реальные топ транзакций по сумме.
     """
     try:
-        # Проверяем наличие необходимых колонок
-        required_columns = ['date', 'amount', 'category', 'description']
+        required_columns = ['Дата операции', 'Сумма операции', 'Категория', 'Описание']
         missing_columns = [col for col in required_columns if col not in df.columns]
 
         if missing_columns:
@@ -228,33 +224,33 @@ def get_top_transactions(df: pd.DataFrame, limit: int = 5) -> List[Dict[str, Any
             return []
 
         # Берем транзакции с положительной суммой (траты)
-        expenses_df = df[df['amount'] > 0].copy()
+        expenses_df = df[df['Сумма операции'] > 0].copy()
 
         if expenses_df.empty:
             logger.info("Нет данных о тратах за период")
             return []
 
         # Сортируем по убыванию суммы и берем топ
-        top_df = expenses_df.nlargest(limit, 'amount')
+        top_df = expenses_df.nlargest(limit, 'Сумма операции')
 
         # Форматируем результат
         top_transactions = []
         for _, row in top_df.iterrows():
             # Форматируем дату
             try:
-                if hasattr(row['date'], 'strftime'):
-                    formatted_date = row['date'].strftime("%d.%m.%Y")
+                if hasattr(row['Дата операции'], 'strftime'):
+                    formatted_date = row['Дата операции'].strftime("%d.%m.%Y")
                 else:
-                    date_obj = pd.to_datetime(row['date'])
+                    date_obj = pd.to_datetime(row['Дата операции'])
                     formatted_date = date_obj.strftime("%d.%m.%Y")
             except Exception:
-                formatted_date = str(row['date'])[:10]
+                formatted_date = str(row['Дата операции'])[:10]
 
             transaction = {
                 "date": formatted_date,
-                "amount": round(float(row['amount']), 2),
-                "category": str(row.get('category', 'Неизвестно')),
-                "description": str(row.get('description', ''))
+                "amount": round(float(row['Сумма операции']), 2),
+                "category": str(row.get('Категория', 'Неизвестно')),
+                "description": str(row.get('Описание', ''))
             }
             top_transactions.append(transaction)
 
@@ -277,14 +273,15 @@ def filter_data_by_month(df: pd.DataFrame, date_time: str) -> pd.DataFrame:
         )
 
         df_copy = df.copy()
-        df_copy['date'] = pd.to_datetime(df_copy['date'], errors='coerce')
+        df_copy['Дата операции'] = pd.to_datetime(df_copy['Дата операции'], errors='coerce')
 
-        df_copy = df_copy.dropna(subset=['date'])
+        # Удаляем строки с некорректными датами
+        df_copy = df_copy.dropna(subset=['Дата операции'])
 
         # Фильтруем по месяцу
         filtered_df = df_copy[
-            (df_copy['date'] >= start_of_month) &
-            (df_copy['date'] <= current_date)
+            (df_copy['Дата операции'] >= start_of_month) &
+            (df_copy['Дата операции'] <= current_date)
             ]
 
         logger.info(

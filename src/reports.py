@@ -66,12 +66,12 @@ def filter_data_by_period(df: pd.DataFrame, date: Optional[str] = None,
             start_date = start_date.replace(day=1)
 
         df_copy = df.copy()
-        df_copy['date'] = pd.to_datetime(df_copy['date'], errors='coerce')
-        df_copy = df_copy.dropna(subset=['date'])
+        df_copy['Дата операции'] = pd.to_datetime(df_copy['Дата операции'], errors='coerce')
+        df_copy = df_copy.dropna(subset=['Дата операции'])
 
         filtered_df = df_copy[
-            (df_copy['date'] >= start_date) &
-            (df_copy['date'] <= end_date)
+            (df_copy['Дата операции'] >= start_date) &
+            (df_copy['Дата операции'] <= end_date)
             ]
 
         logger.info(
@@ -91,7 +91,7 @@ def spending_by_category(transactions: pd.DataFrame, category: str,
     Рассчитывает реальные траты по категории за последние три месяца.
     """
     try:
-        if 'category' not in transactions.columns or 'amount' not in transactions.columns:
+        if 'Категория' not in transactions.columns or 'Сумма операции' not in transactions.columns:
             logger.error("В реальных данных отсутствуют необходимые колонки")
             return {}
 
@@ -107,7 +107,7 @@ def spending_by_category(transactions: pd.DataFrame, category: str,
                 "transaction_count": 0
             }
 
-        category_df = filtered_df[filtered_df['category'] == category]
+        category_df = filtered_df[filtered_df['Категория'] == category]
 
         if category_df.empty:
             logger.info(f"Нет реальных транзакций в категории '{category}'")
@@ -133,7 +133,7 @@ def spending_by_category(transactions: pd.DataFrame, category: str,
                 "transaction_count": 0
             }
 
-        total_spent = category_df['amount'].sum()
+        total_spent = category_df['Сумма операции'].sum()
 
         # Определение реальных дат периода
         if date is None:
